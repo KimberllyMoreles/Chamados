@@ -1,0 +1,47 @@
+<?php
+	require("head.php");
+	require("cabecalho.php");	
+?>
+
+		<p class="grid_16">
+			<tr>
+				<td>
+					T&eacute;rmino</br>
+					<?php echo "<input type='text' id='termino' name='termino' size='20 value=''>";?>
+					<input type="reset" id="bt_termino" value=" ... ">
+
+					<script type="text/javascript">
+						Calendar.setup({
+							trigger: "bt_termino",
+							inputField	 :	"termino",
+							ifFormat	   :	"%d/%m/%Y %H:%M:%S",
+							showsTime	  :	true,
+							button		 :	"bt_termino",
+							singleClick	:	true,
+							step		   :	1,
+							setDisabledHandler(function(date, year, month, day) {
+							  // verify date and return true if it has to be disabled
+							  // ``date'' is a JS Date object, but if you only need the
+							  // year, month and/or day you can get them separately as
+							  // next 3 parameters, as you can see in the declaration
+							  
+							  if (year > <?php echo date("Y");?>)
+								return false;
+							
+							  elseif (year == date("Y") && month > date("m"))
+								return false;
+							
+							  elseif (year == date("Y") && month == date("m") && day > date("d"))
+							  	return false;
+								
+							  return true;
+							})
+						});
+						
+						
+					</script>			
+				</td>
+			</tr>	
+		</p>	
+	</body>
+</html>

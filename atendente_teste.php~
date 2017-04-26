@@ -1,0 +1,282 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<?php
+		require("head.php");
+		require("cabecalho.php");
+		
+		if (isset($_GET['retorno'])){
+			switch ($_GET['retorno']) {
+				case 1:
+					echo '<script language="Javascript">
+					    alert("Registro excluído com sucesso!");
+					  </script>';
+					break;
+				case 2:
+					echo '<script language="Javascript">
+					    alert("Registro nao pode ser excluído!");
+					  </script>';
+					break;
+				case 3:
+					echo '<script language="Javascript">
+					    alert("Registro alterado com sucesso!");
+					  </script>';
+					break;
+				case 4:
+					echo '<script language="Javascript">
+					    alert("Não foi possível alterar! Verifique os dados e tente novamente.");
+					    history.back();
+					  </script>';
+					break;
+				case 5:
+					echo '<script language="Javascript">
+					    alert("Registro salvo com sucesso!");
+					  </script>';
+					break;
+				case 6:
+					echo '<script language="Javascript">
+					    alert("Não foi possível salvar! Verifique os dados e tente novamente.");
+					    history.back();
+					  </script>';
+					break;
+			}
+		}
+
+		$nome = "";
+
+		if (isset($_GET['acao'])=='salvar') {
+			salvar();
+		}
+
+		
+		function salvar() {
+			$idAtendente = $_POST["txtIdatendente"];
+			$nome = $_POST["txtNomeAtendente"]; 
+			if ($idAtendente != null){			
+				$sql = "UPDATE atendente SET nome ='$nome' WHERE idatendente='$idAtendente'";
+				$resultado = pg_query($sql);
+				
+				if($resultado == true){
+					header("Location: atendente.php?retorno=3");
+				}
+				else{
+					header("Location: atendente.php?retorno=4");					
+				}
+			}
+	
+			else{		    	
+				$sql = "INSERT INTO atendente (nome) VALUES ('$nome')";
+				$resultado = pg_query($sql);
+				
+				if($resultado == true){
+					header("Location: atendente.php?retorno=5");
+				}
+				else{
+					header("Location: atendente.php?retorno=6");					
+				}
+			}
+		}
+
+		echo '<script type="text/javascript" language="javascript" class="init">
+			$(document).ready(function() {
+				$("#example").DataTable({
+					"language": {
+						"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Portuguese-Brasil.json"
+					}
+				});
+			} );
+		</script>';
+	?>
+		
+		<script>		
+		$(document).ready(function() {
+			$('#salvar').click(function() {
+				var dados = $('#cadAtendente').serialize();
+	
+				if ($("input[name=id]").val() != "") {
+					var r=confirm("Alterar o registro selecionado?");
+
+					if (r==false) {
+						return false;
+					}
+				}
+
+				$.ajax({
+					type: 'POST',
+					dataType: 'json',
+					url: 'atendente.php',
+					async: true,
+					data: dados,
+					success: function(response) {
+						location.reload();
+					}
+				});
+				return false;
+			}); 
+
+				$("a[rel=popup]").click(function(ev) {
+					$("input[name=txtIdatendente]").prop('disabled', true);
+					$("input[name=txtNomeAtendente]").prop('disabled', true);
+					ev.preventDefault();
+					var id = $(this).attr("href");
+					var alturaTela = $(document).height();
+					var larguraTela = $(window).width();
+					$('#mascara').css({'width': larguraTela, 'height': alturaTela});
+					$('#mascara').fadeIn(500);
+					$('#mascara').fadeTo("slow", 0.8);
+					var left = ($(window).width() / 2) - ($(id).width() / 2);
+					var top = ($(window).height() / 2) - ($(id).height() / 2);
+					$(id).css({'top': top, 'left': left});
+					$(id).show();	
+				});
+		
+				$("#example").on('click','a[rel=modal]',function(ev) {
+					valor = $(this).attr("valor");
+	
+					$("input[name=txtIdatendente]").prop('disabled', true);
+					$("input[name=txtNomeAtendente]").prop('disabled', true);
+		
+					if (valor != null) {
+						$.ajax({
+							type: 'POST',
+							dataType: 'json',
+							url: 'recepcao_chave_buscar.php',
+							async: true,
+							data: { id: valor},
+							success: function(response) {
+			
+						        $("input[name=txtIdatendente]").val(response.txtIdatendente);
+						        $("input[name=txtNomeAtendente]").val(response.txtNomeAtendente);
+								//$("input[name=txtIdatendente]").prop('disabled', false);
+								//$("input[name=txtNomeAtendente]").prop('disabled', false);
+							}
+						});
+			
+					}
+					ev.preventDefault();
+					var id = $(this).attr("href");
+					var alturaTela = $(document).height();
+					var larguraTela = $(window).width();
+					$('#mascara').css({'width': larguraTela, 'height': alturaTela});
+					$('#mascara').fadeIn(500);
+					$('#mascara').fadeTo("slow", 0.8);
+					var left = ($(window).width() / 2) - ($(id).width() / 2);
+					var top = ($(window).height() / 2) - ($(id).height() / 2);
+					$(id).css({'top': top, 'left': left});
+					$(id).show();
+					
+				});
+
+				$("#mascara").click(function() {
+					$(this).hide();
+					$(".window").hide();
+				});
+
+				$('.fechar').click(function(ev) {
+					ev.preventDefault();
+					$("#mascara").hide();
+					$(".window").hide();
+					$('#cadAted input[type=text]').each(function(){
+						$(this).val('');
+				});
+			});
+		});
+		</script>
+		
+			<div id="content" class="container_16 clearfix">
+			
+				<div class="grid_4">
+					<h2>Atendentes</h2>
+					
+				</div>
+				<a href="atendente_add.php" class="add"><img src="images/1460591802_199_CircledPlus.png"></a>
+
+				<div class="grid_16">
+				<div class="window" id="editar">
+					<table id="example" class="display" cellspacing="0" width="100%">
+						<thead>
+							<tr>
+								<th>Atendente</th>
+								<th>Ações</th>
+								<th></th>
+								<th></th>
+
+							</tr>
+						</thead>
+				
+						<tbody>
+							<?php
+							$sql = "SELECT * FROM atendente WHERE data_exclusao IS NULL ORDER BY nome ASC";
+				
+
+							$res = pg_query($sql);
+					
+			
+							if(pg_num_rows($res) > 0){	 
+							   
+							   while($row = pg_fetch_array($res)){
+								  ?>
+							<tr>
+								<td><?php echo $row["nome"];?></td>
+								<td><a href="#" class="atendentes">Listar Chamados</a></td>
+								<td><a href="atendente_add.php?editar=true&idatendente=<?php echo $row['idatendente']?>" class="edit">Editar</a></td>
+								<td><a href="atendente_del.php?idatendente=<?php echo $row['idatendente']?>" class="delete">Excluir</a></td>
+							</tr>
+							 
+							<?php       
+								}
+						 		}
+							else{
+							 echo "<tr><td colspan = '4' >Nenhum registro encontrado no banco de dados!</td></tr>";
+							}
+							?>
+
+						</tbody>
+
+						<tfoot>
+							<tr>
+								<th colspan="4" class="pagination">
+									<span class="active curved">1</span>
+									<a href="#" class="curved">2</a>
+									<a href="#" class="curved">3</a>
+									<a href="#" class="curved">4</a> ... <a href="#" class="curved">10 million</a>
+								</th>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+			</div>
+			
+		
+			<a href="#" class="fechar">X Fechar</a>
+				<form id="cadAtendente" action="atendente.php?acao=salvar&idatendente=<?php echo $idatendente;?>" method="post" name="formulario" onSubmit="return valida()">
+					<div class="grid_16">
+						<h2>Adicionar Atendente</h2>
+					</div>
+
+					<div class="grid_5">
+						<p>
+							<label for="title">Atendente <small>Must contain alpha-numeric characters.</small></label>
+							<input type="hidden" id="idatendente" name="txtIdatendente" value="<?php echo $idatendente; ?>"/>
+							<input type="text" id="nome" maxlength=100 name="txtNomeAtendente" value="<?php echo $nome; ?>" />
+						</p>
+					</div>
+
+					<div class="grid_16">					
+						<p class="submit">
+							<input type="reset" value="Limpar" />
+							<input type="submit" value="OK"/>
+						</p>
+						<p><a href="atendente.php">Voltar</a></p>
+					</div>
+				</form>
+		</div>
+		
+		<div id="mascara"></div>
+		
+		<div id="foot">
+					<a href="#">Contact Me</a>
+				
+		</div>
+	</body>
+</html>

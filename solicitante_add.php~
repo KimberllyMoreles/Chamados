@@ -1,0 +1,95 @@
+<?php
+	require("head.php");
+	require("cabecalho.php");	
+
+
+	if (isset($_GET['editar'])){	
+			$idsolicitante = $_GET["idsolicitante"];
+	    	$sql = "SELECT * FROM solicitante WHERE idsolicitante='$idsolicitante'";
+	    	$solicitanteRes = pg_query($sql);
+	    	$solicitante = pg_fetch_assoc($solicitanteRes);
+	    	$nome = $solicitante["nome"];
+			$idsetor = $solicitante["idsetor"];	    	
+	}
+	else{		
+		$idsolicitante = "";
+		$nome = "";
+		$setor;
+	}
+
+?>
+
+			<SCRIPT>
+				function valida(){
+					if (formulario.txtNomeSolicitante.value == ""){
+							alert("Informe o nome do solicitante!")
+						return (false)
+					}
+					
+					if (formulario.selSetor.value == ""){
+							alert("Escolha um setor!")
+						return (false)
+					}
+					
+					formulario.submit();
+				}
+			</SCRIPT>
+			
+			<div id="content" class="container_16 clearfix">
+				<form action="solicitante.php?acao=salvar&idsolicitante=<?php echo $idsolicitante;?>" method="post" name="formulario" onSubmit="return valida()">
+					<div class="grid_16">
+						<h2>Adicionar Solicitante</h2>
+					</div>
+
+					<div class="grid_5">
+						<p>
+							<label for="title">Solicitante <small>Must contain alpha-numeric characters.</small></label>
+							<input type="hidden" id="idsolicitante" name="txtIdsolicitante" value="<?php echo $idsolicitante; ?>"/>
+							<input type="text" id="nome" maxlength=100 name="txtNomeSolicitante" value="<?php echo $nome; ?>" />
+						</p>
+						<p>
+							<label>Setor</label>
+							<select name="selSetor">
+								<option value="">Escolha um setor:</option>
+								<?php
+									$sql = "SELECT * FROM setor ORDER BY nome ASC";
+									$res = pg_query($sql);							
+					
+									if(pg_num_rows($res) > 0){
+										while($row = pg_fetch_array($res)){
+											if($idsetor == $row['idsetor']){
+								?>
+												<option value="<?php echo $row['idsetor'];?>" selected><?php echo $row["nome"];?></option>
+									<?php
+											}
+											else{
+									?>
+												<option value="<?php echo $row['idsetor'];?>"><?php echo $row["nome"];?></option>
+										<?php
+											}
+										}
+									}
+									?>
+							</select>
+						</p>
+					</div>
+					<div class="grid_1" id="circle1">
+						<p>
+							<a href="solicitante_add.php" class="add"><img src="images/circle.png"></a>
+						</p>
+					</div>
+					<div class="grid_16">					
+						<p class="submit">
+							<input type="reset" value="Limpar" />
+							<input type="submit" value="OK"/>
+						</p>
+						<p><a href="solicitante.php">Voltar</a></p>
+					</div>
+				</form>
+			</div>
+		
+		<div id="foot">
+					<a href="#">Contact Me</a>
+		</div>
+	</body>
+</html>

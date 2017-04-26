@@ -1,0 +1,61 @@
+<?php
+	require("head.php");
+	require("cabecalho.php");	
+
+	$param = false;
+
+	if (isset($_GET['editar'])){	
+		$idsetor = $_GET["idsetor"];
+    	$sql = "SELECT * FROM setor WHERE idsetor='$idsetor'";
+    	$setorRes = pg_query($sql);
+    	$setor = pg_fetch_assoc($setorRes);
+    	$nome = $setor["nome"];
+	}
+	else{		
+		$idsetor = "";
+		$nome = "";
+	}
+	
+	
+
+?>
+
+			<SCRIPT>
+				function valida(){
+					if (formulario.txtNomeSetor.value == ""){
+							alert("Informe o nome do setor!")
+						return (false)
+					}
+					formulario.submit();
+				}
+			</SCRIPT>
+
+			<div id="content" class="container_16 clearfix">
+				<form action="setor.php?acao=salvar&idsetor=<?php echo $idsetor;?>&<?php if (isset($_GET['chamado'])){?>param=true<?php;};?>" method="post" name="formulario" onSubmit="return valida()">
+					<div class="grid_16">
+						<h2>Adicionar Setor</h2>
+					</div>
+
+					<div class="grid_5">
+						<p>
+							<label for="title">Setor <small>Must contain alpha-numeric characters.</small></label>
+							<input type="hidden" id="idsetor" name="txtIdsetor" value="<?php echo $idsetor; ?>"/>
+							<input type="text" id="nome" maxlength=100 name="txtNomeSetor" value="<?php echo $nome; ?>" />
+						</p>
+					</div>
+
+					<div class="grid_16">					
+						<p class="submit">
+							<input type="reset" value="Limpar" />
+							<input type="submit" value="OK"/>
+						</p>
+						<p><a href="setor.php">Voltar</a></p>
+					</div>
+				</form>
+			</div>
+		
+		<div id="foot">
+					<a href="#">Contact Me</a>
+		</div>
+	</body>
+</html>

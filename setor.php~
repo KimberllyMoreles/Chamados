@@ -1,0 +1,161 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<?php
+		require("head.php");
+		require("cabecalho.php");
+		
+		if (isset($_GET['retorno'])){
+			switch ($_GET['retorno']) {
+				case 1:
+					echo '<script language="Javascript">
+					    alert("Registro excluído com sucesso!");
+					  </script>';
+					break;
+				case 2:
+					echo '<script language="Javascript">
+					    alert("Registro nao pode ser excluído!");
+					  </script>';
+					break;
+				case 3:
+					echo '<script language="Javascript">
+					    alert("Registro alterado com sucesso!");
+					  </script>';
+					break;
+				case 4:
+					echo '<script language="Javascript">
+					    alert("Não foi possível alterar! Verifique os dados e tente novamente.");
+					    history.back();
+					  </script>';
+					break;
+				case 5:
+					echo '<script language="Javascript">
+					    alert("Registro salvo com sucesso!");
+					  </script>';
+					break;
+				case 6:
+					echo '<script language="Javascript">
+					    alert("Não foi possível salvar! Verifique os dados e tente novamente.");
+					    history.back();
+					  </script>';
+					break;
+			}
+		}
+
+
+
+		if (isset($_GET['acao'])=='salvar') {
+			salvar();			
+		}
+
+		
+		function salvar() {
+			$idsetor = $_POST["txtIdsetor"];
+			$nome = $_POST["txtNomeSetor"]; 
+			
+			if ($idsetor != null){			
+				$sql = "UPDATE setor SET nome ='$nome' WHERE idsetor='$idsetor'";
+				$resultado = pg_query($sql);
+				
+				if($resultado == true){
+					header("Location: setor.php?retorno=3");
+				}
+				else{
+					header("Location: setor.php?retorno=4");					
+				}
+			}
+	
+			else{		    	
+				$sql = "INSERT INTO setor (nome) VALUES ('$nome')";
+				$resultado = pg_query($sql);
+				
+				if($resultado == true){
+					header("Location: setor.php?retorno=5");
+				}
+				else{
+					header("Location: setor.php?retorno=6");					
+				}
+			}
+		}
+		
+		
+		echo '<script type="text/javascript" language="javascript" class="init">
+			$(document).ready(function() {
+				$("#example").DataTable({
+					"language": {
+						"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Portuguese-Brasil.json"
+					}
+				});
+			} );
+		</script>';
+	?>
+		
+			<div id="content" class="container_16 clearfix">
+			
+				<div class="grid_4">
+					<h2>Setores</h2>
+					
+				</div>
+				<a href="setor_add.php" class="add"><img src="images/1460591802_199_CircledPlus.png"></a>
+				<div class="grid_16">
+					<table id="example" class="display">
+						<thead>
+							<tr>
+								<th>Setor</th>
+								<th>Ações</th>
+								<th></th>
+								<th></th>
+
+							</tr>
+						</thead>
+						
+						<tbody>
+							<?php
+							$sql = "SELECT * FROM setor WHERE data_exclusao = null ORDER BY nome ASC";
+						
+
+							$res = pg_query($sql);
+							
+					
+							if(pg_num_rows($res) > 0){	 
+							   
+							   while($row = pg_fetch_array($res)){
+							      ?>
+							<tr>
+								<td><?php echo $row["nome"];?></td>
+								<td><a href="#" class="funcionarios">Listar Funcionários</a></td>
+								<td><a href="setor_add.php?editar=true&idsetor=<?php echo $row['idsetor']?>" class="edit">Editar</a></td>
+								<td><a href="setor_del.php?idsetor=<?php echo $row['idsetor']?>" class="delete">Excluir</a></td>
+							</tr>
+							 
+							<?php       
+							    }
+					     		}
+							else{
+							 echo "<tr><td colspan = '4' >Nenhum registro encontrado no banco de dados!</td></tr>";
+							}
+							?>
+
+						</tbody>
+
+						<tfoot>
+							<tr>
+								<th colspan="4" class="pagination">
+									<span class="active curved">1</span>
+									<a href="#" class="curved">2</a>
+									<a href="#" class="curved">3</a>
+									<a href="#" class="curved">4</a> ... <a href="#" class="curved">10 million</a>
+								</th>
+							</tr>
+						</tfoot>
+						
+					</table>
+				</div>
+			</div>
+		
+		<div id="foot">
+					<a href="#">Contact Me</a>
+				
+		</div>
+	</body>
+</html>

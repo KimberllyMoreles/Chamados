@@ -1,0 +1,6 @@
+function Acao(act){
+       frm = document.getElementById('formulario');
+       frm.action = act + '.php'; 
+       frm.submit();
+
+    }

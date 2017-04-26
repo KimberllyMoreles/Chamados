@@ -1,0 +1,45 @@
+<?php
+
+	$conect = pg_connect("host=localhost user=postgres password=postgres dbname=chamados port=5432");
+
+	$id = $_POST['idatendente'];
+	$nome = $_POST['txtNomeAtendente'];
+
+
+
+	if ((!isset($_POST['idatendente'])) || ($_POST['idatendente'] == '')){
+	echo "Inserir";
+		$sql = "insert into atendente (
+					nome) 
+				values (
+					'$nome')";
+
+		if (pg_query($conect, $sql)) {
+			$response = array("success" => true);
+		}
+	
+		else{
+			$response = array("success" => false);
+		}
+	}
+
+	else{
+
+		$id = $_POST['idatendente'];
+		$sql = "update atendente set 
+					nome = '$nome'
+				where 
+					idatendente = $id";
+
+		if (pg_query($conect, $sql)) {
+			$response = array("success" => true);
+		}
+	
+		else{
+			$response = array("success" => false);
+		}
+	}
+
+	echo json_encode($response);
+
+?>

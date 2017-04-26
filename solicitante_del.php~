@@ -1,0 +1,17 @@
+<?php
+	require("head.php");
+
+	$idsolicitante = $_GET["idsolicitante"];
+	
+	$sql = "DELETE FROM solicitante WHERE idsolicitante = '$idsolicitante'";
+	$resultado = pg_query($sql);
+
+	if($resultado==true){
+		header("Location: solicitante.php?retorno=1");
+	}
+
+	else{
+		header("Location: solicitante.php?retorno=2");
+	}
+
+	

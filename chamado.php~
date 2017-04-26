@@ -1,0 +1,284 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<?php
+		require("head.php");
+		require("cabecalho.php");
+		
+		if (isset($_GET['retorno'])){
+			switch ($_GET['retorno']) {
+				case 1:
+					echo '<script language="Javascript">
+					    alert("Registro excluído com sucesso!");
+					  </script>';
+					break;
+				case 2:
+					echo '<script language="Javascript">
+					    alert("Registro nao pode ser excluído!");
+					  </script>';
+					break;
+				case 3:
+					echo '<script language="Javascript">
+					    alert("Registro alterado com sucesso!");
+					  </script>';
+					break;
+				case 4:
+					echo '<script language="Javascript">
+					    alert("Não foi possível alterar! Verifique os dados e tente novamente.");
+					    history.back();
+					  </script>';
+					break;
+				case 5:
+					echo '<script language="Javascript">
+					    alert("Registro salvo com sucesso!");
+					  </script>';
+					break;
+				case 6:
+					echo '<script language="Javascript">
+					    alert("Não foi possível salvar! Verifique os dados e tente novamente.");
+					    history.back();
+					  </script>';
+					break;
+			}
+		}
+
+		$dataUm = "";
+		$dataDois = "";
+		
+		$sqlLista = "SELECT
+					 c.idchamado,
+					 a.nome as atendente, 
+					 s.nome as solicitante, 
+					 st.nome as setor,
+					 c.problema,
+					 c.resolucao,
+					 c.horai,
+					 c.horat
+				FROM 
+					chamado c 
+					left join atendente a on a.idatendente = c.idatendente 
+					left join solicitante s on s.idsolicitante = c.idsolicitante 
+					left join setor st on st.idsetor = c.idsetor
+				WHERE c.data_exclusao IS NULL";
+		
+		if (isset($_GET['listar'])) {
+			$dataUm = $_POST["dataUm"];
+			$dataDois = $_POST["dataDois"];
+			
+			if ($dataUm != "" && $dataDois != ""){
+				$sqlLista .= " AND horai BETWEEN '$dataUm' AND '$dataDois'";
+			}
+			
+			if (($dataUm == "" && $dataDois != "")||($dataUm != "" && $dataDois == "")){
+				echo "<script>alert('Para filtrar preecha os dois campos');</script>";
+			}
+		}
+		
+		if (isset($_GET['acao'])=='salvar') {
+			salvar();
+		}
+		
+		function salvar() {
+			$idchamado = $_POST["txtIdchamado"];
+			$atendente = $_POST["selAtendente"];
+			$solicitante = $_POST["selSolicitante"];	
+			$setor = $_POST["selSetor"];
+			$problema = $_POST["problema"];
+			$resolucao = $_POST["resolucao"];
+			$horai = $_POST["inicio"];
+			$horat = $_POST["termino"] == ''?'null':"'".$_POST["termino"]."'";
+			
+			if ($idchamado != null){				
+				$sql = "UPDATE 
+							chamado SET idatendente =$atendente, idsolicitante=$solicitante, idsetor=$setor, problema='$problema', 								resolucao='$resolucao', horai='$horai', horat=$horat
+						WHERE 
+							idchamado=$idchamado";
+				$resultado = pg_query($sql);
+				if($resultado == true){
+					header("Location: chamado.php?retorno=3");
+				}
+				else{
+					header("Location: chamado.php?retorno=4");
+					
+				}
+			}
+	
+			else{	    	
+				$sql = "INSERT INTO chamado (idatendente, idsolicitante, idsetor, problema, resolucao, horai, horat)
+						VALUES ($atendente, $solicitante, $setor, '$problema', '$resolucao', '$horai', $horat)";
+				$resultado = pg_query($sql);
+				if($resultado == true){
+					header("Location: chamado.php?retorno=5");
+				}
+				else{
+					header("Location: chamado.php?retorno=6");
+				}
+			}
+		}
+		
+		
+		echo '<script type="text/javascript" language="javascript" class="init">
+			$(document).ready(function() {
+				$("#example").DataTable({
+					"language": {
+						"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Portuguese-Brasil.json"
+					}
+				});
+			} );
+		</script>';
+	?>
+			<div id="content" class="container_16 clearfix">
+				<div class="grid_4">
+					<h2>Chamados</h2>
+					
+				</div>
+				<a href="chamado_add.php" class="add"><img src="images/1460591802_199_CircledPlus.png"></a>
+				
+				<div class="grid_16">
+					<form action="chamado.php?listar=true" method="post" name="formulario" >
+						<div class="grid_4">
+							<p>	
+								<tr>
+									<td>
+										Data 1: 
+										<?php echo "<input type='text' id='dataUm' name='dataUm' size='20' value='$dataUm'>";?>
+										<input type="reset" id="bt_dataUm" value=" ... ">
+
+										<script type="text/javascript">
+											Calendar.setup({
+												inputField	 :	"dataUm",
+												ifFormat	   :	"%d/%m/%Y %H:%M:%S",
+												showsTime	  :	true,
+												button		 :	"bt_dataUm",
+												singleClick	:	true,
+												step		   :	1,
+												disableFunc: function(date) {
+													var now= new Date();
+													return (date.getTime() > now.getTime());
+												}
+											});
+										</script>			
+									</td>
+								</tr>
+							</p>
+						</div>
+						
+						<div class="grid_4">
+							<p>	
+								<tr>
+									<td>
+										Data 2: 
+										<?php echo "<input type='text' id='dataDois' name='dataDois' size='20' value='$dataDois'>";?>
+										<input type="reset" id="bt_dataDois" value=" ... ">
+
+										<script type="text/javascript">
+											Calendar.setup({
+												inputField	 :	"dataDois",
+												ifFormat	   :	"%d/%m/%Y %H:%M:%S",
+												showsTime	  :	true,
+												button		 :	"bt_dataDois",
+												singleClick	:	true,
+												step		   :	1,
+												disableFunc: function(date) {
+													var now= new Date();
+													return (date.getTime() > now.getTime());
+												}
+											});
+										</script>			
+									</td>
+								</tr>
+							</p>
+						</div>
+						
+						<div class="grid_6 listar">
+							<input type="submit" value="Listar"/>
+						</div>
+					</form>
+				</div>
+				
+				<div class="grid_16">
+					<table id="example" class="display" cellspacing="0" width="100%">
+						<thead>
+							<tr>
+								<th>Atendente</th>
+								<th>Solicitante</th>
+								<th>Setor</th>								
+								<th>Problema</th>
+								<th>Resolução</th>
+								<th>Horário Início</th>
+								<th>Horário Término</th>
+								<th>Ações</th>
+								<th></th>
+							</tr>
+						</thead>
+				
+						<tbody>
+							<?php
+							
+							
+
+							$res = pg_query($sqlLista);
+					
+			
+							if(pg_num_rows($res) > 0){	 
+							   
+								while($row = pg_fetch_array($res)){
+									$idchamado = $row["idchamado"];
+									$nomeAtendente = $row["atendente"];
+									$nomeSolicitante = $row["solicitante"]; 
+									$nomeSetor = $row["setor"];
+									$problema = $row["problema"];
+									$resolucao = $row["resolucao"];
+									$horai = date("d/m/Y H:i:s", strtotime($row['horai']));
+									$horat = "";
+									if ($row['horat'] != ""){
+										$horat = date("d/m/Y H:i:s", strtotime($row['horat'])); 
+									}  
+									
+									echo 
+									"<tr>
+										<td>$nomeAtendente</td>
+										<td>$nomeSolicitante</td>
+										<td>$nomeSetor</td>
+										<td>$problema</td>
+										<td>$resolucao</td>
+										<td>$horai</td>
+										<td>$horat</td>
+										<td><a href='chamado_add.php?editar=true&idchamado=$idchamado' class='edit'>Editar</a></td>
+										<td><a href='chamado_del.php?idchamado=$idchamado' class='delete'>Excluir</a></td>
+									</tr>";
+							 
+							      
+								}
+						 	}
+							else{
+							 echo "<tr><td colspan ='10'>Nenhum registro encontrado no banco de dados!</td></tr>";
+							}
+							?>
+
+						</tbody>
+
+						<tfoot>
+							<tr>
+								<th>Atendente</th>
+								<th>Solicitante</th>
+								<th>Setor</th>								
+								<th>Problema</th>
+								<th>Resolução</th>
+								<th>Horário Início</th>
+								<th>Horário Término</th>
+								<th>Ações</th>
+								<th></th>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+			</div>
+		
+			<div id="foot">
+				<a href="#">Contact Me</a>				
+			</div>	
+				
+		
+	</body>
+</html>

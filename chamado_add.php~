@@ -1,0 +1,299 @@
+<?php
+	require("head.php");
+	require("cabecalho.php");	
+	
+
+	if (isset($_GET['editar'])){	
+		$idchamado = $_GET["idchamado"];
+    	$sql = "SELECT * FROM chamado WHERE idchamado='$idchamado'";
+    	$chamadoRes = pg_query($sql);
+    	$chamado = pg_fetch_assoc($chamadoRes);
+		$idatendente = $chamado['idatendente'];
+		$idsolicitante = $chamado['idsolicitante'];
+		$idsetor = $chamado['idsetor'];
+		$problema = $chamado['problema'];
+		$resolucao = $chamado['resolucao'];
+		$horai = date("d/m/Y H:i:s", strtotime($chamado['horai']));
+		$horat = "";
+		if ($chamado['horat'] != ""){
+			$horat = date("d/m/Y H:i:s", strtotime($chamado['horat'])); 
+		}   	
+	}
+	
+	else{		
+		$idchamado = "";
+		$atendente;
+		$solicitante;
+		$setor;
+		$problema = "";
+		$resolucao = "";
+		$horai = "";
+		$horat = "";		
+	}
+
+?>
+
+			<SCRIPT>
+				function checarDatas(data_1, data_2){
+					if (data_1 > data_2) {
+						alert("Data de início não pode ser maior que a data de término");
+						return false;
+					} else {
+						return true
+					}
+				}
+				
+				function valida(){
+					if (formulario.selAtendente.value == ""){
+							alert("Escolha um atendente!")
+						return (false)
+					}
+					
+					if (formulario.selSolicitante.value == ""){
+							alert("Escolha um solicitante!")
+						return (false)
+					}
+					
+					if (formulario.selSetor.value == ""){
+							alert("Escolha um setor!")
+						return (false)
+					}
+					
+					if (formulario.problema.value == ""){
+							alert("Informe o problema!")
+						return (false)
+					}
+					
+					if (formulario.inicio.value == ""){
+							alert("Data de inicio inválida!")							
+						return (false)
+					}
+					
+					if (formulario.resolucao.value != "" || formulario.termino.value != ""){
+						if (formulario.termino.value == "" || formulario.resolucao.value == ""){
+							alert("Preencha a data de término e a resolução")
+							return (false)
+						}
+					}
+					
+					if (formulario.termino.value != ""){
+						if (checarDatas(formulario.inicio.value, formulario.termino.value) == false){
+							return (false)
+						}						
+					}
+									
+					formulario.submit();
+				}
+			</SCRIPT>
+			
+		<div id="content" class="container_16 clearfix">
+			<form action="chamado.php?acao=salvar&idchamado=<?php echo $idchamado;?>" method="post" name="formulario" onSubmit="return valida()">
+				<div class="grid_18">
+					<h2>Adicionar novo chamado</h2>
+					<input type="hidden" id="idchamado" name="txtIdchamado" value="<?php echo $idchamado; ?>"/>
+				</div>
+			
+				<div class="grid_4">
+					<p>
+						<label for="title">Atendente</label>					
+						<?php
+							echo "						
+								<select name='selAtendente'>
+									<option value='' >Escolha um atendente:</option>";
+								
+									$sql = "SELECT * FROM atendente ORDER BY nome ASC";
+									$res = pg_query($sql);							
+					
+									if(pg_num_rows($res) > 0){
+										while($row = pg_fetch_array($res)){
+									
+											$idAtendente = $row['idatendente'];
+											$nomeAtendente = $row['nome'];
+										
+											if($idatendente == $idAtendente){											
+												echo "<option value='$idAtendente' selected>$nomeAtendente</option>";
+											}
+										
+											else{
+												echo "<option value='$idAtendente'>$nomeAtendente</option>";
+											}
+										
+										}
+									}
+								
+							echo "</select>";					
+						;?>					
+					</p>
+				</div>
+			<div class="grid_1" id="circle">
+				<p>
+					<a href="atendente_add.php" class="add"><img src="images/circle.png"></a>
+				</p>
+			</div>
+			<div class="grid_4">
+				<p>
+					<label for="title">Solicitante</label>					
+					<?php
+						echo "						
+							<select name='selSolicitante'>
+								<option value=''>Escolha um solicitante:</option>";
+								
+								$sql = "SELECT * FROM solicitante ORDER BY nome ASC";
+								$res = pg_query($sql);							
+				
+								if(pg_num_rows($res) > 0){
+									while($row = pg_fetch_array($res)){
+									
+										$idSolicitante = $row['idsolicitante'];
+										$nomeSolicitante = $row['nome'];
+										
+										if($idsolicitante == $idSolicitante){
+											echo "<option value='$idSolicitante' selected>$nomeSolicitante</option>";
+										}
+										
+										else{
+											echo "<option value='$idSolicitante'>$nomeSolicitante</option>";
+										}										
+									}
+								}
+								
+						echo "</select>";					
+					;?>					
+				</p>
+			</div>
+			<div class="grid_1" id="circle">
+				<p>
+					<a href="solicitante_add.php" class="add"><img src="images/circle.png"></a>
+				</p>
+			</div>
+			<div class="grid_4">
+				<p>
+					<label for="title">Setor</label>					
+					<?php
+						echo "						
+							<select name='selSetor'>
+								<option value=''>Escolha um setor:</option>";
+								
+								$sql = "SELECT * FROM setor ORDER BY nome ASC";
+								$res = pg_query($sql);							
+				
+								if(pg_num_rows($res) > 0){
+									while($row = pg_fetch_array($res)){
+									
+										$idSetor = $row['idsetor'];
+										$nomeSetor = $row['nome'];
+										
+										if($idsetor == $idSetor){
+											echo "<option value='$idSetor' selected>$nomeSetor</option>";
+										}
+										
+										else{
+											echo "<option value='$idSetor'>$nomeSetor</option>";
+										}
+										
+									}
+								}
+							
+						echo "</select>";					
+					;?>					
+				</p>
+			</div>			
+			<div class="grid_1" id="circle">
+				<p>
+					<a href="setor_add.php" class="add"><img src="images/circle.png"></a>
+				</p>
+			</div>
+			<div class="grid_15">
+				<p>
+					<label>Problema </label>
+					<?php echo "<textarea rows=4 cols=80 name='problema'>$problema</textarea>";?>
+				</p>
+			</div>
+			
+			<?php
+				if($idchamado != ""){?>
+					<div class="grid_15">
+						<p>
+							<label>Resolução </label>
+							<?php echo "<textarea rows=4 cols=80 name='resolucao'>$resolucao</textarea>";?>
+						</p>
+					</div>
+			<?php 
+				}?>
+				
+			<div class="grid_5">	
+				<p class="grid_16">	
+					<tr>
+						<td>
+							In&iacute;cio</br>
+							<?php echo "<input type='text' id='inicio' name='inicio' size='20' value='$horai'>";?>
+							<input type="reset" id="bt_inicio" value=" ... ">
+
+							<script type="text/javascript">
+								Calendar.setup({
+									inputField	 :	"inicio",
+									ifFormat	   :	"%d/%m/%Y %H:%M:%S",
+									showsTime	  :	true,
+									button		 :	"bt_inicio",
+									singleClick	:	true,
+									step		   :	1,
+									disableFunc: function(date) {
+										var now= new Date();
+										return (date.getTime() > now.getTime());
+									}
+								});
+							</script>			
+						</td>
+					</tr>
+				</p>
+				
+			<?php
+				if($idchamado != ""){?>		
+				
+				<p class="grid_16">
+					<tr>
+						<td>
+							T&eacute;rmino</br>
+							<?php echo "<input type='text' id='termino' name='termino' size='20' value='$horat'>";?>
+							<input type="reset" id="bt_termino" value=" ... ">
+
+							<script type="text/javascript">
+								Calendar.setup({
+									inputField	 :	"termino",
+									ifFormat	   :	"%d/%m/%Y %H:%M:%S",
+									showsTime	  :	true,
+									button		 :	"bt_termino",
+									singleClick	:	true,
+									step		   :	1,
+									disableFunc: function(date) {
+										var now= new Date();
+										return (date.getTime() > now.getTime());
+									}
+								});
+							</script>			
+						</td>
+					</tr>	
+				</p>	
+			
+			<?php
+				}?>
+				
+			</div>
+			
+			<div class="grid_15">
+				<p class="submit">
+					<input type="reset" value="Reset" />
+					<input type="submit" value="Post" />
+				</p>
+				<p><a href="chamado.php">Voltar</a></p>
+			</div>
+			
+			</form>
+			
+		</div>		
+		
+		<div id="foot">
+			<a href="#">Contact Me</a>
+		</div>
+	</body>
+</html>

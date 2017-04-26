@@ -1,0 +1,19 @@
+<?php
+	require("head.php");
+
+	$hoje = Date("d/m/y H:i:s");
+	
+	$idatendente = $_GET["idatendente"];
+	
+	$sql = "UPDATE atendente SET data_exclusao = '$hoje' WHERE idatendente = $idatendente";
+	$resultado = pg_query($sql);
+
+	if($resultado==true){
+		header("Location: atendente.php?retorno=1");
+	}
+
+	else{
+		header("Location: atendente.php?retorno=2");
+	}
+
+	

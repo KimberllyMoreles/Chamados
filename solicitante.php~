@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<?php
+		require("head.php");
+		require("cabecalho.php");
+		
+		if (isset($_GET['retorno'])){
+			switch ($_GET['retorno']) {
+				case 1:
+					echo '<script language="Javascript">
+					    alert("Registro excluído com sucesso!");
+					  </script>';
+					break;
+				case 2:
+					echo '<script language="Javascript">
+					    alert("Registro nao pode ser excluído!");
+					  </script>';
+					break;
+				case 3:
+					echo '<script language="Javascript">
+					    alert("Registro alterado com sucesso!");
+					  </script>';
+					break;
+				case 4:
+					echo '<script language="Javascript">
+					    alert("Não foi possível alterar! Verifique os dados e tente novamente.");
+					    history.back();
+					  </script>';
+					break;
+				case 5:
+					echo '<script language="Javascript">
+					    alert("Registro salvo com sucesso!");
+					  </script>';
+					break;
+				case 6:
+					echo '<script language="Javascript">
+					    alert("Não foi possível salvar! Verifique os dados e tente novamente.");
+					    history.back();
+					  </script>';
+					break;
+			}
+		}
+
+
+
+		if (isset($_GET['acao'])=='salvar') {
+			salvar();
+		}
+
+		
+		function salvar() {
+			$idsolicitante = $_POST["txtIdsolicitante"];
+			$nome = $_POST["txtNomeSolicitante"];	
+			$setor = $_POST["selSetor"];
+			if ($idsolicitante != null){	echo ("Entrou no alterar");			
+				$sql = "UPDATE solicitante SET nome ='$nome', idsetor=$setor WHERE idsolicitante='$idsolicitante'";
+				$resultado = pg_query($sql);
+				if($resultado == true){
+					header("Location: solicitante.php?retorno=3");
+				}
+				else{
+					header("Location: solicitante.php?retorno=4");
+				}
+			}
+	
+			else{	    	
+				$sql = "INSERT INTO solicitante (nome, idsetor) VALUES ('$nome', '$setor')";
+				$resultado = pg_query($sql);
+				if($resultado == true){
+					header("Location: solicitante.php?retorno=5");
+				}
+				else{
+					header("Location: solicitante.php?retorno=6");
+				}
+			}
+		}
+
+		echo '<script type="text/javascript" language="javascript" class="init">
+			$(document).ready(function() {
+				$("#example").DataTable({
+					"language": {
+						"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Portuguese-Brasil.json"
+					}
+				});
+			} );
+		</script>';
+	?>
+			<div id="content" class="container_16 clearfix">
+				<div class="grid_4">
+					<h2>Solicitantes</h2>
+					
+				</div>
+				<a href="solicitante_add.php" class="add"><img src="images/1460591802_199_CircledPlus.png"></a>
+
+				<div class="grid_16">
+					<table id="example" class="display" cellspacing="0" width="100%">
+						<thead>
+							<tr>
+								<th>Solicitante</th>
+								<th>Setor</th>
+								<th>Ações</th>								
+								<th></th>
+								<th></th>
+							</tr>
+						</thead>
+				
+						<tbody>
+							<?php
+							$sql = "SELECT * FROM solicitante ORDER BY nome ASC";
+							
+
+							$res = pg_query($sql);
+					
+			
+							if(pg_num_rows($res) > 0){	 
+							   
+								while($row = pg_fetch_array($res)){
+									$sqln= "SELECT nome FROM setor WHERE idsetor='".$row['idsetor']."'";
+									$setorRes = pg_query($sqln);
+									$setor = pg_fetch_assoc($setorRes);
+									$nomeSetor = $setor["nome"];  
+		
+								  ?>
+							<tr>
+								<td><?php echo $row["nome"];?></td>
+								<td><?php echo $nomeSetor;?></td>
+								<td><a href="#" class="solicitantes">Listar Chamados</a></td>
+								<td><a href="solicitante_add.php?editar=true&idsolicitante=<?php echo $row['idsolicitante']?>" class="edit">Editar</a></td>
+								<td><a href="solicitante_del.php?idsolicitante=<?php echo $row['idsolicitante']?>" class="delete">Excluir</a></td>
+							</tr>
+							 
+							<?php       
+								}
+						 		}
+							else{
+							 echo "<tr><td colspan ='4'>Nenhum registro encontrado no banco de dados!</td></tr>";
+							}
+							?>
+
+						</tbody>
+
+						<tfoot>
+							<tr>
+								<th colspan="5" class="pagination">
+									<span class="active curved">1</span>
+									<a href="#" class="curved">2</a>
+									<a href="#" class="curved">3</a>
+									<a href="#" class="curved">4</a> ... <a href="#" class="curved">10 million</a>
+								</th>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+			</div>
+		
+		<div id="foot">
+					<a href="#">Contact Me</a>
+				
+		</div>
+	</body>
+</html>

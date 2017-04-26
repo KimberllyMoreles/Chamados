@@ -1,0 +1,17 @@
+<?php
+	require("head.php");
+
+	$idsetor = $_GET["idsetor"];
+	
+	$sql = "DELETE FROM setor WHERE idsetor = '$idsetor'";
+	$resultado = pg_query($sql);
+
+	if($resultado==true){
+		header("Location: setor.php?retorno=1");
+	}
+
+	else{
+		header("Location: setor.php?retorno=2");
+	}
+
+	

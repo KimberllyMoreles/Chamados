@@ -1,0 +1,58 @@
+<?php
+	require("head.php");
+	require("cabecalho.php");	
+
+
+	if (isset($_GET['editar'])){	
+			$idatendente = $_GET["idatendente"];
+	    	$sql = "SELECT * FROM atendente WHERE idatendente='$idatendente'";
+	    	$atendenteRes = pg_query($sql);
+	    	$atendente = pg_fetch_assoc($atendenteRes);
+	    	$nome = $atendente["nome"];
+	}
+	else{		
+		$idatendente = "";
+		$nome = "";
+	}
+
+?>
+
+			<SCRIPT>
+				function valida(){
+					if (formulario.txtNomeAtendente.value == ""){
+							alert("Informe o nome do atendente!")
+						return (false)
+					}
+					formulario.submit();
+				}
+			</SCRIPT>
+			
+			<div id="content" class="container_16 clearfix">
+				<form action="atendente.php?acao=salvar&idatendente=<?php echo $idatendente;?>" method="post" name="formulario" onSubmit="return valida()">
+					<div class="grid_16">
+						<h2>Adicionar Atendente</h2>
+					</div>
+
+					<div class="grid_5">
+						<p>
+							<label for="title">Atendente <small>Must contain alpha-numeric characters.</small></label>
+							<input type="hidden" id="idatendente" name="txtIdatendente" value="<?php echo $idatendente; ?>"/>
+							<input type="text" id="nome"  name="txtNomeAtendente" value="<?php echo $nome; ?>" />
+						</p>
+					</div>
+
+					<div class="grid_16">					
+						<p class="submit">
+							<input type="reset" value="Limpar" />
+							<input type="submit" value="OK"/>
+						</p>
+						<p><a href="atendente.php">Voltar</a></p>
+					</div>
+				</form>
+			</div>
+		
+		<div id="foot">
+					<a href="#">Contact Me</a>
+		</div>
+	</body>
+</html>
